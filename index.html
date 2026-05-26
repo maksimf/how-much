@@ -1,0 +1,717 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#111111" />
+    <title>HOW//MUCH</title>
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' fill='%23111'/><circle cx='16' cy='32' r='8' fill='%23e63329'/><rect x='24' y='24' width='16' height='16' fill='%23f5d600'/><polygon points='48,40 56,24 64,40' fill='%231c4ed8'/></svg>"
+    />
+    <meta name="apple-mobile-web-app-title" content="HOW//MUCH" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      // Apply theme BEFORE first paint to avoid a flash of the wrong colors.
+      (function () {
+        try {
+          var saved = localStorage.getItem("how-much.theme");
+          var dark =
+            saved === "dark" ||
+            (!saved &&
+              window.matchMedia &&
+              window.matchMedia("(prefers-color-scheme: dark)").matches);
+          if (dark) document.documentElement.setAttribute("data-theme", "dark");
+        } catch (e) {}
+      })();
+    </script>
+    <style>
+      :root {
+        --black: #111111;
+        --white: #fafafa;
+        --paper: #f1ede4;
+        --yellow: #f5d600;
+        --red: #e63329;
+        --blue: #1c4ed8;
+        --green: #1faa3f;
+        --grey: #d9d9d9;
+        --grey-2: #ececec;
+        --muted: #7a7a7a;
+        color-scheme: light;
+      }
+
+      [data-theme="dark"] {
+        --black: #ededed;
+        --white: #18181a;
+        --paper: #0e0e10;
+        --red: #ff5046;
+        --blue: #6b8eff;
+        --green: #34c759;
+        --grey: #2a2a2c;
+        --grey-2: #242426;
+        --muted: #8a8a8a;
+        color-scheme: dark;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background: var(--paper);
+        color: var(--black);
+        font-family: "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
+        font-weight: 400;
+        -webkit-font-smoothing: antialiased;
+        min-height: 100vh;
+        min-height: 100svh;
+      }
+
+      button,
+      input,
+      select {
+        font-family: inherit;
+      }
+
+      button {
+        cursor: pointer;
+      }
+
+      /* ---------- Top bar ---------- */
+      .topbar {
+        background: var(--black);
+        color: var(--white);
+        padding: 14px 16px;
+        padding-top: max(14px, env(safe-area-inset-top));
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 4px solid var(--yellow);
+        position: sticky;
+        top: 0;
+        z-index: 10;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .brand-mark {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .shape {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+      }
+
+      .shape--circle {
+        background: var(--red);
+        border-radius: 50%;
+      }
+
+      .shape--square {
+        background: var(--yellow);
+      }
+
+      .shape--triangle {
+        width: 0;
+        height: 0;
+        background: transparent;
+        border-left: 10px solid transparent;
+        border-right: 10px solid transparent;
+        border-bottom: 16px solid var(--blue);
+      }
+
+      .brand-title {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 900;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      .brand-title .slash {
+        color: var(--yellow);
+        margin: 0 1px;
+      }
+
+      .btn--theme {
+        background: var(--white);
+        color: var(--black);
+        border: 2px solid var(--white);
+        padding: 8px;
+        display: inline-grid;
+        place-items: center;
+        line-height: 0;
+        min-width: 40px;
+        min-height: 40px;
+      }
+
+      .btn--theme:hover {
+        background: var(--yellow);
+        border-color: var(--yellow);
+      }
+
+      .theme-icon {
+        width: 18px;
+        height: 18px;
+        display: block;
+      }
+
+      .theme-icon--sun {
+        display: none;
+      }
+
+      [data-theme="dark"] .theme-icon--moon {
+        display: none;
+      }
+
+      [data-theme="dark"] .theme-icon--sun {
+        display: block;
+      }
+
+      /* ---------- Main ---------- */
+      main {
+        max-width: 520px;
+        margin: 0 auto;
+        padding: 18px 16px 32px;
+        padding-bottom: max(32px, calc(env(safe-area-inset-bottom) + 16px));
+      }
+
+      .field {
+        margin-bottom: 18px;
+      }
+
+      .field-label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+        color: var(--black);
+      }
+
+      .field-label::before {
+        content: "";
+        display: inline-block;
+        width: 18px;
+        height: 6px;
+        background: var(--yellow);
+        flex-shrink: 0;
+      }
+
+      .input,
+      .select {
+        width: 100%;
+        background: var(--white);
+        color: var(--black);
+        border: 3px solid var(--black);
+        padding: 14px 14px;
+        font-size: 18px;
+        font-weight: 600;
+        appearance: none;
+        -webkit-appearance: none;
+        border-radius: 0;
+        outline: none;
+        line-height: 1.2;
+      }
+
+      .input:focus,
+      .select:focus {
+        background: var(--yellow);
+        color: var(--black);
+      }
+
+      [data-theme="dark"] .input:focus,
+      [data-theme="dark"] .select:focus {
+        color: #111;
+      }
+
+      .select {
+        background-image: linear-gradient(45deg, transparent 50%, var(--black) 50%),
+          linear-gradient(135deg, var(--black) 50%, transparent 50%);
+        background-position: calc(100% - 18px) 50%, calc(100% - 12px) 50%;
+        background-size: 6px 6px, 6px 6px;
+        background-repeat: no-repeat;
+        padding-right: 34px;
+      }
+
+      .row-two {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+
+      .input-affix {
+        position: relative;
+      }
+
+      .input-affix .input {
+        padding-left: 36px;
+      }
+
+      .input-affix__symbol {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-weight: 900;
+        font-size: 18px;
+        color: var(--muted);
+        pointer-events: none;
+      }
+
+      .input-affix .input:focus + .input-affix__symbol {
+        color: var(--black);
+      }
+
+      .now-btn {
+        margin-top: 8px;
+        background: transparent;
+        border: 2px solid var(--black);
+        color: var(--black);
+        font-weight: 800;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        font-size: 11px;
+        padding: 8px 12px;
+        width: 100%;
+      }
+
+      .now-btn:hover {
+        background: var(--black);
+        color: var(--paper);
+      }
+
+      /* ---------- Total ---------- */
+      .total-card {
+        margin-top: 28px;
+        border: 4px solid var(--black);
+        background: var(--white);
+        position: relative;
+      }
+
+      .total-card::before {
+        content: "";
+        position: absolute;
+        inset: -4px -4px auto -4px;
+        height: 10px;
+        background: var(--yellow);
+      }
+
+      .total-head {
+        padding: 18px 18px 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      .total-hours {
+        color: var(--black);
+        background: var(--grey-2);
+        padding: 4px 8px;
+        font-weight: 900;
+      }
+
+      .total-amount {
+        padding: 6px 18px 18px;
+        font-size: clamp(56px, 18vw, 96px);
+        font-weight: 900;
+        letter-spacing: -0.04em;
+        line-height: 1;
+        color: var(--black);
+        font-variant-numeric: tabular-nums;
+        word-break: break-all;
+      }
+
+      .total-amount .pound {
+        color: var(--red);
+        margin-right: 4px;
+      }
+
+      .total-amount.is-empty {
+        color: var(--muted);
+      }
+
+      /* ---------- Tips ---------- */
+      .tips {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0;
+        border: 4px solid var(--black);
+        border-top: none;
+      }
+
+      .tip {
+        padding: 12px 8px 14px;
+        text-align: center;
+        background: var(--paper);
+        border-right: 3px solid var(--black);
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .tip:last-child {
+        border-right: none;
+      }
+
+      .tip--mid {
+        background: var(--yellow);
+      }
+
+      [data-theme="dark"] .tip--mid {
+        color: #111;
+      }
+
+      .tip-pct {
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      .tip--mid .tip-pct {
+        color: #111;
+      }
+
+      .tip-amount {
+        font-size: 22px;
+        font-weight: 900;
+        letter-spacing: -0.02em;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .tip-amount .pound {
+        color: var(--red);
+        margin-right: 2px;
+      }
+
+      .tip--mid .tip-amount .pound {
+        color: var(--black);
+      }
+
+      /* ---------- Breakdown ---------- */
+      .breakdown {
+        margin-top: 18px;
+        padding: 14px 16px;
+        background: var(--grey-2);
+        border-left: 6px solid var(--blue);
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--black);
+        line-height: 1.5;
+      }
+
+      .breakdown strong {
+        font-weight: 900;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .breakdown.is-empty {
+        border-left-color: var(--grey);
+        color: var(--muted);
+      }
+
+      /* ---------- Small screens / extra polish ---------- */
+      @media (max-width: 360px) {
+        .brand-title {
+          font-size: 16px;
+        }
+        .input,
+        .select {
+          font-size: 16px;
+          padding: 12px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">
+          <span class="shape shape--circle"></span>
+          <span class="shape shape--square"></span>
+          <span class="shape shape--triangle"></span>
+        </span>
+        <h1 class="brand-title">HOW<span class="slash">//</span>MUCH</h1>
+      </div>
+      <button
+        type="button"
+        class="btn--theme"
+        id="theme-toggle"
+        aria-label="Toggle dark mode"
+        title="Toggle dark mode"
+      >
+        <svg class="theme-icon theme-icon--moon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="currentColor" />
+        </svg>
+        <svg class="theme-icon theme-icon--sun" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="4" fill="currentColor" />
+          <g stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none">
+            <line x1="12" y1="2.5" x2="12" y2="5" />
+            <line x1="12" y1="19" x2="12" y2="21.5" />
+            <line x1="2.5" y1="12" x2="5" y2="12" />
+            <line x1="19" y1="12" x2="21.5" y2="12" />
+            <line x1="4.9" y1="4.9" x2="6.7" y2="6.7" />
+            <line x1="17.3" y1="17.3" x2="19.1" y2="19.1" />
+            <line x1="4.9" y1="19.1" x2="6.7" y2="17.3" />
+            <line x1="17.3" y1="6.7" x2="19.1" y2="4.9" />
+          </g>
+        </svg>
+      </button>
+    </header>
+
+    <main>
+      <div class="field">
+        <label class="field-label" for="actor">Who</label>
+        <select class="select" id="actor" aria-label="Who you're paying"></select>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="rate">Hourly rate</label>
+        <div class="input-affix">
+          <input
+            class="input"
+            id="rate"
+            type="number"
+            inputmode="decimal"
+            min="0"
+            step="0.5"
+            placeholder="20"
+          />
+          <span class="input-affix__symbol">£</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <span class="field-label">Time</span>
+        <div class="row-two">
+          <input class="input" id="start" type="time" aria-label="Start time" />
+          <input class="input" id="end" type="time" aria-label="End time" />
+        </div>
+        <button type="button" class="now-btn" id="now-btn">End now</button>
+      </div>
+
+      <section class="total-card" aria-live="polite">
+        <div class="total-head">
+          <span>Total owed</span>
+          <span class="total-hours" id="hours-label">0h 00m</span>
+        </div>
+        <div class="total-amount is-empty" id="total">
+          <span class="pound">£</span><span id="total-num">—</span>
+        </div>
+        <div class="tips" id="tips">
+          <div class="tip">
+            <span class="tip-pct">+10%</span>
+            <span class="tip-amount"><span class="pound">£</span><span data-tip="10">—</span></span>
+          </div>
+          <div class="tip tip--mid">
+            <span class="tip-pct">+15%</span>
+            <span class="tip-amount"><span class="pound">£</span><span data-tip="15">—</span></span>
+          </div>
+          <div class="tip">
+            <span class="tip-pct">+20%</span>
+            <span class="tip-amount"><span class="pound">£</span><span data-tip="20">—</span></span>
+          </div>
+        </div>
+      </section>
+
+      <div class="breakdown is-empty" id="breakdown">
+        Enter a start and end time to see the breakdown.
+      </div>
+    </main>
+
+    <script>
+      (function () {
+        const STORAGE = {
+          theme: "how-much.theme",
+          actors: "how-much.actors",
+          lastActor: "how-much.last-actor",
+        };
+
+        const DEFAULT_ACTORS = [{ id: "nataly", name: "Nataly", rate: 20 }];
+
+        // ---------- Theme toggle ----------
+        const themeBtn = document.getElementById("theme-toggle");
+        themeBtn.addEventListener("click", () => {
+          const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+          if (isDark) {
+            document.documentElement.removeAttribute("data-theme");
+            localStorage.setItem(STORAGE.theme, "light");
+          } else {
+            document.documentElement.setAttribute("data-theme", "dark");
+            localStorage.setItem(STORAGE.theme, "dark");
+          }
+        });
+
+        // ---------- Actors ----------
+        function loadActors() {
+          try {
+            const raw = localStorage.getItem(STORAGE.actors);
+            if (raw) {
+              const parsed = JSON.parse(raw);
+              if (Array.isArray(parsed) && parsed.length) return parsed;
+            }
+          } catch (e) {}
+          return DEFAULT_ACTORS;
+        }
+
+        const actors = loadActors();
+        const actorSelect = document.getElementById("actor");
+        const rateInput = document.getElementById("rate");
+        const startInput = document.getElementById("start");
+        const endInput = document.getElementById("end");
+
+        actors.forEach((a) => {
+          const opt = document.createElement("option");
+          opt.value = a.id;
+          opt.textContent = `${a.name} \u00b7 \u00a3${a.rate}/h`;
+          opt.dataset.rate = a.rate;
+          actorSelect.appendChild(opt);
+        });
+
+        const savedActor = localStorage.getItem(STORAGE.lastActor);
+        if (savedActor && actors.some((a) => a.id === savedActor)) {
+          actorSelect.value = savedActor;
+        }
+        const initialActor = actors.find((a) => a.id === actorSelect.value) || actors[0];
+        rateInput.value = initialActor.rate;
+
+        actorSelect.addEventListener("change", () => {
+          const a = actors.find((x) => x.id === actorSelect.value);
+          if (a) {
+            rateInput.value = a.rate;
+            localStorage.setItem(STORAGE.lastActor, a.id);
+            recompute();
+          }
+        });
+
+        // ---------- Time helpers ----------
+        function parseTime(value) {
+          if (!value) return null;
+          const m = /^(\d{2}):(\d{2})$/.exec(value);
+          if (!m) return null;
+          const h = parseInt(m[1], 10);
+          const min = parseInt(m[2], 10);
+          if (h > 23 || min > 59) return null;
+          return h * 60 + min; // minutes since midnight
+        }
+
+        function nowAsTimeString() {
+          const d = new Date();
+          const hh = String(d.getHours()).padStart(2, "0");
+          const mm = String(d.getMinutes()).padStart(2, "0");
+          return `${hh}:${mm}`;
+        }
+
+        document.getElementById("now-btn").addEventListener("click", () => {
+          endInput.value = nowAsTimeString();
+          recompute();
+        });
+
+        // ---------- Compute ----------
+        const totalNumEl = document.getElementById("total-num");
+        const totalAmountEl = document.getElementById("total");
+        const hoursLabelEl = document.getElementById("hours-label");
+        const breakdownEl = document.getElementById("breakdown");
+        const tipEls = {
+          10: document.querySelector('[data-tip="10"]'),
+          15: document.querySelector('[data-tip="15"]'),
+          20: document.querySelector('[data-tip="20"]'),
+        };
+
+        function formatPounds(n) {
+          // Round to nearest pound, then format with thousands separator
+          return Math.round(n).toLocaleString("en-GB");
+        }
+
+        function formatHours(totalMinutes) {
+          const h = Math.floor(totalMinutes / 60);
+          const m = totalMinutes % 60;
+          return `${h}h ${String(m).padStart(2, "0")}m`;
+        }
+
+        function recompute() {
+          const start = parseTime(startInput.value);
+          const end = parseTime(endInput.value);
+          const rate = parseFloat(rateInput.value);
+
+          const hasTimes = start != null && end != null;
+          const hasRate = Number.isFinite(rate) && rate >= 0;
+
+          if (!hasTimes || !hasRate) {
+            totalNumEl.textContent = "\u2014";
+            totalAmountEl.classList.add("is-empty");
+            hoursLabelEl.textContent = "0h 00m";
+            Object.values(tipEls).forEach((el) => (el.textContent = "\u2014"));
+            breakdownEl.classList.add("is-empty");
+            breakdownEl.textContent = !hasTimes
+              ? "Enter a start and end time to see the breakdown."
+              : "Enter an hourly rate to see the breakdown.";
+            return;
+          }
+
+          let durationMin = end - start;
+          if (durationMin < 0) durationMin += 24 * 60; // crossed midnight
+
+          const hours = durationMin / 60;
+          const base = hours * rate;
+
+          totalAmountEl.classList.remove("is-empty");
+          totalNumEl.textContent = formatPounds(base);
+          hoursLabelEl.textContent = formatHours(durationMin);
+
+          [10, 15, 20].forEach((pct) => {
+            const withTip = base * (1 + pct / 100);
+            tipEls[pct].textContent = formatPounds(withTip);
+          });
+
+          breakdownEl.classList.remove("is-empty");
+          const hoursStr = hours.toLocaleString("en-GB", {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 2,
+          });
+          const rateStr = rate.toLocaleString("en-GB", {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 2,
+          });
+          breakdownEl.innerHTML = `<strong>${hoursStr}h</strong> &times; <strong>\u00a3${rateStr}/h</strong> = <strong>\u00a3${base.toFixed(2)}</strong>`;
+        }
+
+        [startInput, endInput, rateInput].forEach((el) => {
+          el.addEventListener("input", recompute);
+          el.addEventListener("change", recompute);
+        });
+
+        recompute();
+      })();
+    </script>
+  </body>
+</html>
