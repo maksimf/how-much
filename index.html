@@ -285,24 +285,6 @@
         color: var(--black);
       }
 
-      .now-btn {
-        margin-top: 8px;
-        background: transparent;
-        border: 2px solid var(--black);
-        color: var(--black);
-        font-weight: 800;
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
-        font-size: 11px;
-        padding: 8px 12px;
-        width: 100%;
-      }
-
-      .now-btn:hover {
-        background: var(--black);
-        color: var(--paper);
-      }
-
       /* ---------- Total ---------- */
       .total-card {
         margin-top: 28px;
@@ -516,7 +498,6 @@
           <input class="input" id="start" type="time" aria-label="Start time" />
           <input class="input" id="end" type="time" aria-label="End time" />
         </div>
-        <button type="button" class="now-btn" id="now-btn">End now</button>
       </div>
 
       <section class="total-card" aria-live="polite">
@@ -631,10 +612,9 @@
           return `${hh}:${mm}`;
         }
 
-        document.getElementById("now-btn").addEventListener("click", () => {
-          endInput.value = nowAsTimeString();
-          recompute();
-        });
+        // Default end-time to "now" on page load. Recomputed by the
+        // change/input listeners further down once the user edits it.
+        endInput.value = nowAsTimeString();
 
         // ---------- Compute ----------
         const totalNumEl = document.getElementById("total-num");
