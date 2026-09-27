@@ -535,7 +535,10 @@
           lastActor: "how-much.last-actor",
         };
 
-        const DEFAULT_ACTORS = [{ id: "nataly", name: "Nataly", rate: 23 }];
+        const DEFAULT_ACTORS = [
+          { id: "nataly", name: "Nataly", rate: 23 },
+          { id: "salima", name: "Salima", rate: 20 },
+        ];
 
         // ---------- Theme toggle ----------
         const themeBtn = document.getElementById("theme-toggle");
@@ -552,14 +555,22 @@
 
         // ---------- Actors ----------
         function loadActors() {
+          let stored = [];
           try {
             const raw = localStorage.getItem(STORAGE.actors);
             if (raw) {
               const parsed = JSON.parse(raw);
-              if (Array.isArray(parsed) && parsed.length) return parsed;
+              if (Array.isArray(parsed)) stored = parsed;
             }
           } catch (e) {}
-          return DEFAULT_ACTORS;
+
+          // Merge in any newly-shipped default actors without clobbering
+          // edits to actors the user already has.
+          const merged = stored.slice();
+          DEFAULT_ACTORS.forEach((def) => {
+            if (!merged.some((a) => a.id === def.id)) merged.push(def);
+          });
+          return merged.length ? merged : DEFAULT_ACTORS;
         }
 
         const actors = loadActors();
